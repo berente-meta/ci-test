@@ -10,7 +10,8 @@ on:
 
 env:
   DOCKER_REGISTRY: docker.io
-  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/liferay-connector
+  DOCKER_REPO: ci-test
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}
 
 jobs:
   validate-secrets:
