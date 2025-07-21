@@ -10,8 +10,7 @@ on:
 
 env:
   DOCKER_REGISTRY: docker.io
-  DOCKER_REPO: ci-test
-  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ci-test
 
 jobs:
   validate-secrets:
