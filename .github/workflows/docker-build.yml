@@ -10,8 +10,8 @@ on:
       - "docs/**"
 
 env:
-  REGISTRY: docker.io
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/liferay-connector
+  DOCKER_REGISTRY: docker.io
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/liferay-connector
 
 jobs:
   validate-secrets:
@@ -20,21 +20,17 @@ jobs:
     steps:
       - name: Check Docker Hub secrets
         run: |
-          for var in DOCKER_PASSWORD DOCKER_USERNAME; do
-            if [ -z "${{ secrets.${var} }}" ]; then
-              echo "❌ Error: ${var} secret is not set or is empty"
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+              echo "❌ Error: DOCKER_USERNAME secret is not set or is empty"
               exit 1
-            fi
-          done
+          fi
 
-          for var in REGISTRY IMAGE_NAME; do
-            if [ -z "${{ vars.${var} }}" ]; then
-              echo "❌ Error: ${var} variable is not set or is empty"
+          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
+              echo "❌ Error: DOCKER_PASSWORD secret is not set or is empty"
               exit 1
-            fi
-          done
+          fi
 
-          echo "✅ Docker Hub secrets and variables are properly configured"
+          echo "✅ Docker Hub secrets are properly configured"
 
   push_to_registry:
     name: Push Docker image to Docker Hub
@@ -62,7 +58,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -82,12 +78,12 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
       - name: Output image info
         run: |
           echo "✅ Successfully built and pushed Docker image"
-          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          echo "Image: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
           echo "Tags: ${{ steps.meta.outputs.tags }}"
